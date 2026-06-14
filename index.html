@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCI Buyer Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#232C33; --ink2:#2C353C; --orange:#F15A22; --orange-dk:#C9450F; --orange-tint:#FFF4EF;
+    --teal:#1690A3; --teal-dk:#0F7585; --teal-tint:#EAF4F6; --green:#1F7A4D; --green-tint:#E7F2EB;
+    --gold:#9A6708; --gold-tint:#F8EFD9; --warn:#C0392B; --warn-tint:#F8E6E3;
+    --paper:#F4F7F8; --panel:#F2F5F6; --line:#DCE3E6; --muted:#5E696F; --muted2:#7E8C93; --white:#fff;
+    --head:'Archivo','Segoe UI',system-ui,sans-serif; --body:'Lato','Segoe UI',system-ui,sans-serif;
+    --shadow:0 6px 22px rgba(26,34,40,.10); --shadow-sm:0 2px 8px rgba(26,34,40,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--body);background:var(--paper);color:var(--ink);overflow:hidden;
+    background-image:radial-gradient(1200px 500px at 80% -10%, #ffffff 0%, var(--paper) 60%);}
+  .app{display:flex;height:100vh;width:100vw}
+
+  /* ---------------- SIDEBAR (light, on-brand) ---------------- */
+  .side{width:300px;min-width:300px;background:var(--white);border-right:1px solid var(--line);
+    color:var(--ink2);display:flex;flex-direction:column;padding:22px 20px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .diamond{width:15px;height:15px;background:var(--orange);transform:rotate(45deg);border-radius:2px}
+  .brand .wm{font-family:var(--head);font-weight:800;font-size:18px;color:var(--ink);letter-spacing:.2px}
+  .brand .sub{font-family:var(--head);font-size:9.5px;letter-spacing:2px;color:var(--muted2);font-weight:700;margin-top:2px}
+
+  .toggle{margin-top:22px;background:var(--panel);border-radius:12px;padding:5px;display:flex;gap:4px}
+  .toggle button{flex:1;border:0;background:transparent;color:var(--muted);font-family:var(--head);font-weight:700;
+    font-size:12.5px;padding:9px 6px;border-radius:8px;cursor:pointer;transition:.18s;letter-spacing:.3px}
+  .toggle button.on{background:var(--orange);color:#fff;box-shadow:var(--shadow-sm)}
+  .toggle.lab button.on{background:var(--teal)}
+  .toggle .sub{display:block;font-family:var(--body);font-weight:400;font-size:9px;color:inherit;opacity:.85;margin-top:2px;letter-spacing:0}
+
+  .side h4{font-family:var(--head);font-size:10px;letter-spacing:1.8px;color:var(--muted2);font-weight:700;margin:24px 0 10px}
+  .src{background:var(--panel);border-radius:10px;padding:11px 12px;margin-bottom:8px;border-left:3px solid var(--green)}
+  .src .nm{font-family:var(--head);font-weight:700;color:var(--ink);font-size:13px;display:flex;align-items:center;gap:7px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+  .src .meta{font-size:11px;color:var(--muted);margin-top:3px}
+
+  .personas{display:flex;flex-direction:column;gap:6px}
+  .pbtn{text-align:left;background:var(--panel);border:1px solid transparent;border-radius:9px;padding:9px 11px;cursor:pointer;color:var(--ink2);transition:.15s}
+  .pbtn:hover{border-color:#cdd6d9}
+  .pbtn.on{border-color:var(--teal);background:var(--teal-tint)}
+  .pbtn b{font-family:var(--head);color:var(--teal-dk);font-size:13px;margin-right:6px}
+  .pbtn span{font-size:11.5px}
+
+  .side .foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);font-size:10.5px;color:var(--muted);line-height:1.5}
+  .side .foot b{color:var(--ink2);font-family:var(--head)}
+  .resetbtn{margin-top:9px;background:transparent;border:1px solid var(--line);color:var(--muted);font-family:var(--head);
+    font-size:11px;font-weight:700;padding:6px 10px;border-radius:7px;cursor:pointer;letter-spacing:.5px}
+  .resetbtn:hover{border-color:var(--orange);color:var(--orange-dk)}
+
+  /* ---------------- MAIN ---------------- */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .topbar{padding:16px 30px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(4px)}
+  .topbar .title{font-family:var(--head);font-weight:800;font-size:17px;color:var(--ink)}
+  .topbar .tag{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .pill{font-family:var(--head);font-size:10px;font-weight:700;letter-spacing:1px;color:var(--orange-dk);
+    background:var(--orange-tint);border:1px solid #f6d9cb;padding:5px 11px;border-radius:20px}
+  .lab .pill{color:var(--teal-dk);background:var(--teal-tint);border-color:#cfe6ea}
+
+  .scroll{flex:1;overflow-y:auto;padding:26px 30px 8px;scroll-behavior:smooth}
+  .wrap{max-width:880px;margin:0 auto}
+
+  .hero{padding:34px 0 10px;animation:fade .5s ease}
+  .hero h1{font-family:var(--head);font-size:30px;font-weight:800;color:var(--ink);line-height:1.15;letter-spacing:-.3px}
+  .hero p{font-size:15.5px;color:var(--muted);margin-top:10px;max-width:650px;line-height:1.5}
+  .hint{font-size:12px;color:var(--muted2);margin:18px 0 9px;font-family:var(--head);letter-spacing:.5px;text-transform:uppercase;font-weight:700}
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:11px 14px;font-size:13.5px;
+    color:var(--ink2);cursor:pointer;transition:.15s;box-shadow:var(--shadow-sm);max-width:410px;line-height:1.3}
+  .chip:hover{border-color:var(--orange);transform:translateY(-1px)}
+  .chip b{color:var(--orange-dk);font-family:var(--head)}
+  .lab .chip:hover{border-color:var(--teal)} .lab .chip b{color:var(--teal-dk)}
+
+  .turn{margin:16px 0;animation:rise .35s ease both}
+  .user{display:flex;justify-content:flex-end}
+  .user .b{background:var(--ink);color:#eef2f3;padding:11px 16px;border-radius:14px 14px 4px 14px;max-width:80%;font-size:15px;line-height:1.4}
+
+  .sys{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .sys .hd{padding:9px 16px;font-family:var(--head);font-size:10.5px;font-weight:700;letter-spacing:1.5px;border-bottom:1px solid var(--line)}
+  .sys.coach .hd{color:var(--teal-dk);background:var(--teal-tint)}
+  .sys.buyer{border-color:#f3c9ba}
+  .sys.buyer .hd{color:var(--orange-dk);background:var(--orange-tint)}
+  .sys .bd{padding:6px 18px 16px}
+
+  .blk{padding:13px 0 3px;border-bottom:1px solid #eef2f3;animation:fade .4s ease both}
+  .blk:last-child{border-bottom:0}
+  .blk .lbl{display:flex;align-items:center;gap:8px;font-family:var(--head);font-weight:700;font-size:13px;color:var(--ink);margin-bottom:4px}
+  .num{width:21px;height:21px;border-radius:50%;background:var(--teal-tint);color:var(--teal-dk);font-family:var(--head);
+    font-weight:700;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+  .blk p{font-size:14.5px;color:#3a454c;line-height:1.5}
+  .blk .quote{background:var(--teal-tint);border-left:3px solid var(--teal);padding:11px 14px;border-radius:0 8px 8px 0;
+    font-size:15px;color:var(--ink2);font-style:italic;line-height:1.5;margin-top:3px}
+  .blk .proof{font-size:12.5px;color:var(--muted);margin-top:8px}
+
+  .tag{display:inline-block;font-family:var(--head);font-size:10px;font-weight:700;letter-spacing:.4px;
+    padding:2px 8px;border-radius:11px;border:1px solid;margin:0 3px 3px 0;vertical-align:middle}
+  .t-pub{color:var(--green);border-color:var(--green);background:var(--green-tint)}
+  .t-claim{color:var(--orange-dk);border-color:var(--orange);background:var(--orange-tint)}
+
+  .sources{margin-top:10px;font-size:11px;color:var(--muted2);line-height:1.5}
+  .sources b{font-family:var(--head);color:var(--muted);letter-spacing:.3px}
+
+  .flag{margin-top:11px;border-radius:9px;padding:10px 13px;font-size:13px;line-height:1.45;display:flex;gap:9px;align-items:flex-start}
+  .flag .ic{font-weight:800;flex:none}
+  .flag.warn{background:var(--warn-tint);border:1px solid #eec6c0;color:#8c2c20}
+  .flag.warn .ic{color:var(--warn)}
+  .flag b{font-family:var(--head)}
+  .dl-list{margin:4px 0 0;padding-left:2px;list-style:none}
+  .dl-list li{font-size:13px;color:#8c2c20;margin:4px 0;line-height:1.4}
+  .dl-list li::before{content:"\2717";color:var(--warn);font-weight:800;margin-right:7px}
+
+  .elic{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px 18px}
+  .elic h3{font-family:var(--head);font-size:14.5px;color:var(--ink);margin-bottom:3px}
+  .elic .q{font-size:12px;color:var(--muted2);font-family:var(--head);letter-spacing:.5px;text-transform:uppercase;font-weight:700;margin:13px 0 8px}
+  .opts{display:flex;flex-wrap:wrap;gap:7px}
+  .opt{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 12px;font-size:13px;cursor:pointer;transition:.14s;color:var(--ink2);font-family:var(--body)}
+  .opt:hover{border-color:var(--orange);background:var(--orange-tint)}
+  .opt.sel{border-color:var(--orange);background:var(--orange);color:#fff}
+  .opt.muted2{color:var(--muted)}
+  .opt b{font-family:var(--head);color:var(--orange-dk);margin-right:5px}
+  .opt.sel b{color:#fff}
+  .go{margin-top:15px;background:var(--orange);color:#fff;border:0;border-radius:9px;padding:10px 20px;font-family:var(--head);
+    font-weight:700;font-size:13.5px;cursor:pointer;opacity:.45;pointer-events:none;transition:.15s}
+  .go.ready{opacity:1;pointer-events:auto}
+
+  .think{display:flex;gap:6px;padding:14px 18px;align-items:center;color:var(--muted)}
+  .think .d{width:8px;height:8px;border-radius:50%;background:var(--teal);animation:bounce 1.1s infinite}
+  .think .d:nth-child(2){animation-delay:.18s}.think .d:nth-child(3){animation-delay:.36s}
+  .think span{font-size:12.5px;margin-left:4px;font-style:italic}
+
+  .composer{padding:14px 30px 20px;border-top:1px solid var(--line);background:rgba(255,255,255,.75)}
+  .cbox{max-width:880px;margin:0 auto;display:flex;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:14px;
+    padding:7px 7px 7px 16px;box-shadow:var(--shadow-sm);transition:.15s}
+  .cbox:focus-within{border-color:var(--orange)}
+  .lab .cbox:focus-within{border-color:var(--teal)}
+  .cbox input{flex:1;border:0;outline:0;font-family:var(--body);font-size:15px;color:var(--ink);background:transparent}
+  .send{background:var(--orange);color:#fff;border:0;border-radius:9px;padding:0 20px;font-family:var(--head);font-weight:700;font-size:14px;cursor:pointer}
+  .lab .send{background:var(--teal)}
+  .cnote{max-width:880px;margin:8px auto 0;font-size:11px;color:var(--muted2);text-align:center}
+
+  /* visible error banner (self-diagnosing) */
+  #errbar{display:none;position:fixed;left:0;right:0;bottom:0;background:var(--warn);color:#fff;font-family:var(--body);
+    font-size:13px;padding:10px 18px;z-index:9999;box-shadow:0 -2px 10px rgba(0,0,0,.2)}
+  #errbar b{font-family:var(--head)}
+
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+  ::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:#cdd6d9;border-radius:6px;border:3px solid var(--paper)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <div class="diamond"></div>
+      <div><div class="wm">PatientPoint</div><div class="sub">MCI BUYER LAB</div></div>
+    </div>
+
+    <div class="toggle" id="toggle">
+      <button class="on" data-tool="ask" onclick="setTool('ask')">Ask MCI<span class="sub">Fast competitive answers</span></button>
+      <button data-tool="lab" onclick="setTool('lab')">Coaching Lab<span class="sub">Practice with a buyer</span></button>
+    </div>
+
+    <div id="sideAsk">
+      <h4>GROUNDED SOURCES</h4>
+      <div class="src"><div class="nm"><span class="dot"></span>CheckedUp</div><div class="meta">Public record · MRC announcement Jun 10 2026</div></div>
+      <div class="src"><div class="nm"><span class="dot"></span>Health Monitor Network</div><div class="meta">Public record · MyDrugRep acquisition May 7 2026</div></div>
+      <h4 style="margin-top:18px">BUYER DOSSIERS</h4>
+      <div class="src" style="border-left-color:var(--teal)"><div class="meta">P1–P6 loaded · research-grounded</div></div>
+    </div>
+
+    <div id="sideLab" style="display:none">
+      <h4>PICK A BUYER TO PRACTICE</h4>
+      <div class="personas" id="personaList"></div>
+    </div>
+
+    <div class="foot">
+      <b>Scripted demo.</b> Answers are grounded in public sources and buyer dossiers — citations shown with each response.
+      <button class="resetbtn" onclick="resetAll()">RESET DEMO</button>
+    </div>
+  </aside>
+
+  <section class="main" id="main">
+    <div class="topbar" id="topbar">
+      <div><div class="title" id="tbTitle">Ask MCI</div><div class="tag" id="tbTag">Field coach — a claim, an objection, a buyer signal you need to read</div></div>
+      <div class="pill" id="tbPill">THE WORKHORSE</div>
+    </div>
+    <div class="scroll" id="scroll"><div class="wrap" id="feed"></div></div>
+    <div class="composer">
+      <div class="cbox">
+        <input id="input" placeholder="Describe the situation — e.g. &ldquo;CheckedUp says they're MRC-accredited now too&rdquo;" autocomplete="off"
+          onkeydown="if(event.key==='Enter')submitText()">
+        <button class="send" onclick="submitText()" id="sendBtn">Ask</button>
+      </div>
+      <div class="cnote" id="cnote">Tip: type a real situation, or pick a competitor — the lab fills in the rest.</div>
+    </div>
+  </section>
+</div>
+<div id="errbar"></div>
+
+<script>
+"use strict";
+/* visible, self-diagnosing error handling — no more silent dead clicks */
+function showError(msg){
+  var b=document.getElementById('errbar');
+  if(!b)return;
+  b.innerHTML='<b>Something hiccuped:</b> '+String(msg)+' — click Reset to recover.';
+  b.style.display='block';
+}
+window.addEventListener('error',function(e){ showError(e.message||'unknown error'); });
+function guard(fn){ return function(){ try{ return fn.apply(this,arguments); }catch(e){ showError(e.message); } }; }
+
+/* ============================ DATA ============================ */
+var PERSONAS = {
+  P1:{name:"DTC Consumer Brand Marketer",tag:"Owns the consumer brand & DTC story"},
+  P2:{name:"HCP Brand Marketer",tag:"Exam room; target-match & outcomes"},
+  P3:{name:"Omnichannel / Integrated Strategist",tag:"Judges each channel in the ecosystem"},
+  P4:{name:"Agency Media Buyer / Planner",tag:"Gatekeeper; reach-first, priority list"},
+  P5:{name:"Analytics & Measurement Leader",tag:"The skeptic; data-sharing is fatal"},
+  P6:{name:"Specialty / Rare / Small-Brand",tag:"Concentrated bettor; ROI & saturation"}
+};
+
+var PT = {
+  CU:{
+    P4:{test:"Reach against their priority list. For an agency buyer, footprint usually beats a cost-per-office gap — it's their #1 lever.",
+        stat:"Audited, MRC-accredited footprint as the contrast — 30,000+ offices across the full network."},
+    P2:{test:"Whether the exam-room story still holds — the room where the prescribing decision happens.",
+        stat:"Full-network MRC scope incl. exam room (their accreditation is waiting-room TV only)."},
+    P6:{test:"Whether the spend pencils out for a concentrated specialty bet — ROI and saturation bite hardest here.",
+        stat:"Specialty-relevant depth and measurable engagement — not the network-wide headline."},
+    def:{test:"What's really underneath the claim — usually price cover or a measurement worry, not the headline.",
+        stat:"Audited, full-network MRC accreditation as the credible contrast."}
+  },
+  HMN:{
+    P4:{test:"Whether one vendor simplifies the plan — and whether the bundle actually holds up in measurement.",
+        stat:"MRC-accredited 30,000+ office network vs. an unaudited 250K-office distribution claim."},
+    P2:{test:"Where the HCP touch happens — desk/home (virtual) vs. the in-office prescribing moment.",
+        stat:"In-office presence at the clinical decision moment vs. opt-in virtual outreach."},
+    P5:{test:"Whether the bundle measures. HMN's HCP side isn't MRC-accredited — that's the thread they'll pull themselves.",
+        stat:"Full-network MRC accreditation vs. a non-accredited, engagement-only bundle."},
+    def:{test:"Convenience vs. defensibility — a one-buy bundle that isn't accredited isn't automatically a saving.",
+        stat:"Native, measured, MRC-accredited stack vs. a bundle assembled in May 2026."}
+  }
+};
+
+var DONT_LEAD = {
+  CU:["“We have 3D anatomy and they don't” — they do. Don't lead here.",
+      "“We're the only MRC-accredited POC vendor” — CheckedUp earned waiting-room TV accreditation (Jun 10). Lead with scope, not exclusivity.",
+      "“They're tiny / not real” — they're a credible, fast-growing specialty player. Beat them on scope and measurement."],
+  HMN:["“HMN doesn't reach HCPs” — they do now, via MyDrugRep. The wedge is in-office vs. virtual.",
+       "“Their measurement is junk” — be specific: they have engagement metrics; they aren't MRC-accredited.",
+       "“They're going away” — they're not. PE-backed (Gridiron) and building. Beat them on substance."]
+};
+
+var SCENARIOS = {
+  CU_MRC:{comp:"CU",title:"CheckedUp · MRC accreditation",primary:"P2",
+    kw:["mrc","accredit","accreditation","only one","not the only","certified","audited"],
+    read:"They're testing whether your core differentiator just evaporated. It didn't — the answer is scope, and it's now publicly verifiable on both sides.",
+    turnLabel:"The turn",
+    turn:"Credit to them — they earned MRC accreditation for their waiting-room TV metrics, announced in June. Two things to know: ours covers the full network — waiting room, exam room, and back office — and we were the first POC publisher accredited, back in 2024. Their scope is waiting-room TV. The exam room, where the treatment decision happens, isn't in it.",
+    proof:"CheckedUp (Jun 10, 2026): accredited for two metrics — TV Video Ad Plays and Explorer Waiting Room TV Engagement — following an independent CPA audit. PatientPoint (Apr 9, 2026): expanded full-network MRC accreditation across 30,000+ offices, covering waiting room, exam room and back office; first POC publisher accredited (Jan 2024).",
+    proofTags:["pub"],
+    ask:"When you evaluate accreditation, are you looking at waiting-room TV metrics — or full-office, point-of-decision measurement that includes the exam room?",
+    warnDL:true,
+    sources:["CheckedUp — BusinessWire, Jun 10 2026","PatientPoint — PR Newswire, Apr 9 2026","PatientPoint first POC accreditation — Jan 2024"]},
+  CU_PRICE:{comp:"CU",title:"CheckedUp · cheaper price / discount",primary:"P4",
+    kw:["bogo","cheaper","cheap","price","discount","beat","beats","less money","renewal","cost"],
+    read:"“Cheaper” is rarely about the number — it's cost pressure and cover with procurement. Don't negotiate price yet; change what's being compared.",
+    turnLabel:"The turn",
+    turn:"Discounting to grow is a smart short-term move for them — but it changes what you're buying: their office count, not your matched-target office count for the brand. Let's pull the overlap on your priority list. That's the real comparison.",
+    proof:"Both networks are advertiser-funded, so “free / cheaper” isn't a real differentiator — the comparison that matters is matched-target office overlap and audited reach, not list price.",
+    proofTags:[],
+    ask:"What was the match rate against your priority list — and is that office count independently audited?",
+    warnDL:true,
+    sources:[]},
+  CU_3D:{comp:"CU",title:"CheckedUp · 3D anatomy / “same product”",primary:"P2",
+    kw:["3d","anatomy","same product","exam room device","consult","interactive","annotation"],
+    read:"A feature-parity trap. Concede the feature, then move the comparison to the system around the device.",
+    turnLabel:"The turn",
+    turn:"Feature-for-feature, the 3D piece is close — concede it. The question isn't the device, it's everything around it: network depth, the back-office screen, the field force that installs and walks the office, and accredited measurement across the whole visit. Buy the device, you get the device. Buy us, you get the system.",
+    proof:"Exam-room 3D/annotation features are broadly comparable; the durable differentiator is the surrounding system — full-network reach, in-office presence, and MRC-accredited measurement across waiting room, exam room and back office.",
+    proofTags:["pub"],
+    ask:"Beyond the screen — who installs it, trains the staff, keeps content current, and can you measure it the same way across the whole office?",
+    warnDL:true,
+    sources:["PatientPoint full-network MRC — Apr 9 2026"]},
+  HMN_BUNDLE:{comp:"HMN",title:"Health Monitor · the bundle (HCP + patient, one buy)",primary:"P4",
+    kw:["bundle","one buy","both","hcp and patient","mydrugrep bundle","package","integrated"],
+    read:"They're being sold convenience. Reframe convenience vs. defensibility — a bundle assembled by acquisition isn't the same as one that's measured and accredited.",
+    turnLabel:"The turn",
+    turn:"They assembled the bundle in May — they acquired MyDrugRep to add an HCP digital product onto their print and screen base. We've run the integrated stack natively: full-network MRC accreditation, programmatic via Health Audiences, and in-office presence at the moment the prescribing decision is made. One buy is convenient. One buy that's accredited and measures is different.",
+    proof:"HMN acquired D+R Lathian / MyDrugRep on May 7, 2026 (owner: Gridiron Capital); MyDrugRep is a virtual, opt-in HCP outreach channel. PatientPoint: full-network MRC accreditation (Apr 9, 2026) and PatientPoint Health Audiences programmatic (launched Mar 24, 2026).",
+    proofTags:["pub"],
+    ask:"When the bundle is measured at year end, which half holds up — and is the HCP side independently accredited?",
+    warnDLh:true,
+    sources:["HMN / D+R Lathian acquisition — Globe Newswire, May 7 2026","PatientPoint MRC — Apr 9 2026; Health Audiences — Mar 24 2026"]},
+  HMN_REACH:{comp:"HMN",title:"Health Monitor · MyDrugRep 800K reach",primary:"P2",
+    kw:["mydrugrep","800k","806k","reach physicians","hcp digital","reachable","drug rep"],
+    read:"A big reach number in a different unit, and it's self-reported. Don't deny it — distinguish the channel.",
+    turnLabel:"The turn",
+    turn:"MyDrugRep is virtual outbound — opt-in email and portal, physician at desk or home. Our HCP play is in-office, where the prescribing decision actually happens. Different channels, complementary, not substitutes — and one of them reaches the doctor at the moment of decision.",
+    proof:"MyDrugRep self-reports ~806,000 reachable physicians and a 28% engagement rate — vendor self-report, not independently audited, and the engagement definition isn't disclosed. PatientPoint reaches HCPs in-office at the point of care.",
+    proofTags:["claim"],
+    ask:"Do you want HCP reach at the desk — or presence at the moment the script decision is made? And is that 806K figure audited?",
+    warnDLh:true,
+    sources:["MyDrugRep figures — vendor self-report (D+R Lathian)"]},
+  HMN_OFFICES:{comp:"HMN",title:"Health Monitor · 250K offices “bigger than you”",primary:"P4",
+    kw:["250k","offices","bigger","broadest reach","distribution","more offices"],
+    read:"Their headline reach is a self-reported distribution claim, not audited. Move the conversation to the unit of measurement.",
+    turnLabel:"The turn",
+    turn:"That's a vendor-reported distribution number. Our 30,000 practices and 145,000 devices are MRC-accredited and independently audited. Different unit of measurement — and one of them is verified. The question for your brand isn't who claims the bigger number; it's whose reach is against your priority list and whose metrics you can defend.",
+    proof:"HMN's ~250,000-office figure is a vendor claim (self-reported, not audited). PatientPoint's 30,000 practices / 145,000 devices carry full-network MRC accreditation (Apr 9, 2026).",
+    proofTags:["claim","pub"],
+    ask:"Is the 250K independently audited — and how much of it actually overlaps your priority target list?",
+    warnDLh:true,
+    sources:["HMN reach — vendor claim","PatientPoint scale + MRC — Apr 9 2026"]}
+};
+
+var UNGROUNDED = ["phreesia","webmd","medscape","pulsepoint","optimizerx","deepintent","doximity","lasso","veeva","crossix","sonifi","getwell","get well","doceree"];
+
+/* ============================ STATE ============================ */
+var tool="ask";
+var pending=null;
+var labState=null;
+
+/* ============================ HELPERS ============================ */
+function feed(){return document.getElementById('feed');}
+function scroller(){return document.getElementById('scroll');}
+function scrollDown(){requestAnimationFrame(function(){var s=scroller();if(s)s.scrollTop=s.scrollHeight;});}
+function el(html){var d=document.createElement('div');d.innerHTML=String(html).trim();return d.firstChild;}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;'})[c];});}
+function clearFeed(){var f=feed();if(f)f.innerHTML='';}
+var TAGHTML={pub:'<span class="tag t-pub">Public · sourced</span>',claim:'<span class="tag t-claim">Vendor claim</span>'};
+
+/* ============================ TOOL SWITCH ============================ */
+var setTool = guard(function(t){
+  tool=t; pending=null; labState=null;
+  var btns=document.querySelectorAll('#toggle button');
+  for(var i=0;i<btns.length;i++){ btns[i].classList.toggle('on',btns[i].getAttribute('data-tool')===t); }
+  document.getElementById('toggle').classList.toggle('lab',t==='lab');
+  document.getElementById('main').classList.toggle('lab',t==='lab');
+  document.getElementById('sideAsk').style.display = (t==='ask')?'block':'none';
+  document.getElementById('sideLab').style.display = (t==='lab')?'block':'none';
+  if(t==='ask'){
+    document.getElementById('tbTitle').textContent='Ask MCI';
+    document.getElementById('tbTag').textContent='Field coach — a claim, an objection, a buyer signal you need to read';
+    document.getElementById('tbPill').textContent='THE WORKHORSE';
+    document.getElementById('input').placeholder='Describe the situation — e.g. “CheckedUp says they\u2019re MRC-accredited now too”';
+    document.getElementById('sendBtn').textContent='Ask';
+  }else{
+    document.getElementById('tbTitle').textContent='Coaching Lab';
+    document.getElementById('tbTag').textContent='Practice in character with a buyer — then step out to coach';
+    document.getElementById('tbPill').textContent='DEEPER PRACTICE';
+    document.getElementById('input').placeholder='Type your response to the buyer…';
+    document.getElementById('sendBtn').textContent='Send';
+  }
+  renderHome();
+});
+
+/* ============================ HOME ============================ */
+var renderHome = guard(function(){
+  clearFeed();
+  if(tool==='ask'){
+    feed().appendChild(el(
+     '<div class="hero">'+
+       '<h1>Ask in plain language.<br>The lab keys it to the buyer.</h1>'+
+       '<p>Type a real situation — a competitor claim, an objection, a pricing moment. The lab asks only what it\u2019s missing, then coaches with grounded, persona-specific answers, with sources.</p>'+
+       '<div class="hint">Try one of these — or ask anything</div>'+
+       '<div class="chips">'+
+         '<div class="chip" onclick="runChip(\'CU_MRC\')"><b>CheckedUp:</b> &ldquo;They just got MRC accreditation — you\u2019re not the only one now.&rdquo;</div>'+
+         '<div class="chip" onclick="runChip(\'CU_PRICE\')"><b>CheckedUp:</b> &ldquo;They came in cheaper, with a BOGO office deal.&rdquo;</div>'+
+         '<div class="chip" onclick="runChip(\'HMN_BUNDLE\')"><b>Health Monitor:</b> &ldquo;They give us HCP and patient in one buy now.&rdquo;</div>'+
+         '<div class="chip" onclick="runChip(\'HMN_OFFICES\')"><b>Health Monitor:</b> &ldquo;Their reach is 250K offices — bigger than yours.&rdquo;</div>'+
+       '</div>'+
+     '</div>'));
+    document.getElementById('cnote').textContent='Tip: type a real situation, or pick a competitor — the lab fills in the rest.';
+  }else{
+    feed().appendChild(el(
+     '<div class="hero">'+
+       '<h1>Practice the hard conversations — safely.</h1>'+
+       '<p>Pick a buyer on the left. The lab plays them in character — real friction, no easy yeses — then steps out to coach. Right now <b>P4 · Agency Media Buyer</b> is wired for a CheckedUp price/speed roleplay.</p>'+
+       '<div class="hint">Start a roleplay</div>'+
+       '<div class="chips">'+
+         '<div class="chip" onclick="startRoleplay(\'P4\')"><b>P4 · Agency:</b> Roleplay the CheckedUp &ldquo;cheaper &amp; faster&rdquo; objection</div>'+
+       '</div>'+
+     '</div>'));
+    document.getElementById('cnote').textContent='In character until you click “Coach me.” The buyer won\u2019t go easy on you.';
+  }
+});
+
+/* ============================ ASK MCI ============================ */
+function addUser(text){ feed().appendChild(el('<div class="turn user"><div class="b">'+esc(text)+'</div></div>')); scrollDown(); }
+
+var submitText = guard(function(){
+  var i=document.getElementById('input'); var t=i.value.trim(); if(!t)return; i.value='';
+  if(tool==='lab'){ labReply(t); return; }
+  if(feed().querySelector('.hero')) clearFeed();
+  addUser(t); route(t);
+});
+
+var route = guard(function(t){
+  var low=t.toLowerCase();
+  var hasCU = low.indexOf('checkedup')>-1 || low.indexOf('checked up')>-1;
+  var hasHMN = low.indexOf('health monitor')>-1 || low.indexOf('hmn')>-1 || low.indexOf('monitor')>-1 || low.indexOf('mydrugrep')>-1;
+  for(var u=0;u<UNGROUNDED.length;u++){
+    if(low.indexOf(UNGROUNDED[u])>-1 && !hasCU && !hasHMN){ return noGrounding(UNGROUNDED[u]); }
+  }
+  var best=null,score=0;
+  for(var id in SCENARIOS){ if(!SCENARIOS.hasOwnProperty(id))continue;
+    var s=SCENARIOS[id],sc=0;
+    for(var k=0;k<s.kw.length;k++){ if(low.indexOf(s.kw[k])>-1)sc++; }
+    if(s.comp==='CU'&&hasCU)sc++;
+    if(s.comp==='HMN'&&hasHMN)sc++;
+    if(sc>score){score=sc;best=id;}
+  }
+  if(!best||score===0){ if(hasHMN)best='HMN_BUNDLE'; else if(hasCU)best='CU_MRC'; }
+  if(!best){ return unclear(); }
+  pending={scenario:best,comp:SCENARIOS[best].comp,persona:null};
+  elicit();
+});
+
+var runChip = guard(function(id){
+  if(feed().querySelector('.hero')) clearFeed();
+  addUser(SCENARIOS[id].title.replace(/^.*· /,''));
+  pending={scenario:id,comp:SCENARIOS[id].comp,persona:null};
+  elicit();
+});
+
+var elicit = guard(function(){
+  var compName = pending.comp==='CU' ? 'CheckedUp' : 'Health Monitor Network';
+  var opts='';
+  for(var p in PERSONAS){ if(!PERSONAS.hasOwnProperty(p))continue;
+    opts+='<button class="opt" onclick="pickPersona(\''+p+'\',this)"><b>'+p+'</b>'+PERSONAS[p].name+'</button>';
+  }
+  opts+='<button class="opt muted2" onclick="pickPersona(\'NS\',this)">Not sure</button>';
+  feed().appendChild(el(
+    '<div class="turn"><div class="elic" id="elic">'+
+      '<h3>Quick context — so I coach for the right buyer.</h3>'+
+      '<div class="q">Which buyer are you working with?</div>'+
+      '<div class="opts">'+opts+'</div>'+
+      '<div class="q">Competitor involved</div>'+
+      '<div class="opts"><button class="opt sel" disabled><b>'+pending.comp+'</b>'+compName+' · detected</button></div>'+
+      '<button class="go" id="goBtn" onclick="resolve()">Coach me &rarr;</button>'+
+    '</div></div>'));
+  scrollDown();
+});
+
+var pickPersona = guard(function(p,btn){
+  pending.persona=p;
+  var sib=btn.parentNode.querySelectorAll('.opt');
+  for(var i=0;i<sib.length;i++)sib[i].classList.remove('sel');
+  btn.classList.add('sel');
+  document.getElementById('goBtn').classList.add('ready');
+});
+
+var resolve = guard(function(){
+  var e=document.getElementById('elic'); if(e&&e.closest('.turn'))e.closest('.turn').remove();
+  if(pending.persona==='NS'){ return guidedFork(); }
+  answer(pending.scenario,pending.persona);
+});
+
+/* guided fork */
+var guidedFork = guard(function(){
+  feed().appendChild(el(
+    '<div class="turn"><div class="elic" id="fork">'+
+      '<h3>No problem — two quick questions and I\u2019ll pin the buyer.</h3>'+
+      '<div class="q">Where do they sit?</div>'+
+      '<div class="opts">'+
+        '<button class="opt" onclick="forkRole(\'P4\',this)">Agency / media buyer</button>'+
+        '<button class="opt" onclick="forkRole(\'P5\',this)">Analytics / measurement</button>'+
+        '<button class="opt" onclick="forkRole(\'P6\',this)">Specialty / small brand</button>'+
+        '<button class="opt" onclick="forkRole(\'BRAND\',this)">In-house brand team</button>'+
+      '</div><div id="fork2"></div>'+
+    '</div></div>'));
+  scrollDown();
+});
+var forkRole = guard(function(r,btn){
+  var sib=btn.parentNode.querySelectorAll('.opt');
+  for(var i=0;i<sib.length;i++)sib[i].classList.remove('sel');
+  btn.classList.add('sel');
+  if(r!=='BRAND'){ closeFork(r); return; }
+  document.getElementById('fork2').innerHTML=
+     '<div class="q">What do they push on?</div>'+
+     '<div class="opts">'+
+       '<button class="opt" onclick="closeFork(\'P2\')">Exam-room / prescribing &amp; outcomes</button>'+
+       '<button class="opt" onclick="closeFork(\'P1\')">Consumer / DTC story</button>'+
+       '<button class="opt" onclick="closeFork(\'P3\')">Fit across the whole channel mix</button>'+
+     '</div>';
+  scrollDown();
+});
+var closeFork = guard(function(p){
+  var f=document.getElementById('fork'); if(f&&f.closest('.turn'))f.closest('.turn').remove();
+  feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— MCI COACH —</div>'+
+     '<div class="bd"><div class="blk"><p>Sounds like <b>'+p+' · '+PERSONAS[p].name+'</b>. Coaching for them now.</p></div></div></div></div>'));
+  scrollDown();
+  var sc=pending.scenario;
+  setTimeout(function(){ answer(sc,p); },350);
+});
+
+/* coached answer (streamed) */
+var answer = guard(function(id,persona){
+  var s=SCENARIOS[id]; var pt=(PT[s.comp][persona]||PT[s.comp].def);
+  var dlSet = s.warnDLh ? DONT_LEAD.HMN : DONT_LEAD.CU;
+  var proofTagHTML=''; for(var i=0;i<(s.proofTags||[]).length;i++){ proofTagHTML+=TAGHTML[s.proofTags[i]]+' '; }
+
+  var card=el('<div class="turn"><div class="sys coach">'+
+     '<div class="hd">— MCI COACH · '+persona+' · '+(s.comp==='CU'?'CheckedUp':'Health Monitor')+' —</div>'+
+     '<div class="bd" id="ansbd"></div></div></div>');
+  feed().appendChild(card);
+  var bd=card.querySelector('#ansbd');
+  bd.appendChild(el('<div class="think"><span class="d"></span><span class="d"></span><span class="d"></span><span>Pulling the grounded record…</span></div>'));
+  scrollDown();
+
+  var blocks=[
+    '<div class="blk"><div class="lbl"><span class="num">1</span>Read of the situation</div><p>'+s.read+'</p></div>',
+    '<div class="blk"><div class="lbl"><span class="num">2</span>What '+persona+' is really testing</div><p>'+pt.test+'</p></div>',
+    '<div class="blk"><div class="lbl"><span class="num">3</span>'+s.turnLabel+'</div><div class="quote">“'+s.turn+'”</div><div class="proof">'+proofTagHTML+'<br>'+s.proof+'</div></div>',
+    '<div class="blk"><div class="lbl"><span class="num">4</span>The stat that tends to carry for '+persona+'</div><p>'+pt.stat+'</p></div>',
+    '<div class="blk"><div class="lbl"><span class="num">5</span>A question worth asking next</div><p style="font-style:italic;color:var(--ink2)">“'+s.ask+'”</p></div>'
+  ];
+  var tail='';
+  if(s.warnDL||s.warnDLh){
+    var lis=''; for(var d=0;d<dlSet.length;d++){ lis+='<li>'+dlSet[d]+'</li>'; }
+    tail+='<div class="flag warn"><span class="ic">&#9888;</span><div><b>Don\u2019t lead with</b><ul class="dl-list">'+lis+'</ul></div></div>';
+  }
+  if(s.sources&&s.sources.length){
+    tail+='<div class="sources"><b>SOURCES</b><br>'+s.sources.join(' &nbsp;·&nbsp; ')+'</div>';
+  }
+  if(tail) blocks.push('<div class="blk">'+tail+'</div>');
+
+  var k=0;
+  function tick(){
+    if(k===0) bd.innerHTML='';
+    if(k<blocks.length){ bd.appendChild(el(blocks[k])); k++; scrollDown(); setTimeout(tick,540); }
+    else { document.getElementById('cnote').textContent='Grounded in the public record + the '+persona+' dossier — sources shown above.'; }
+  }
+  setTimeout(tick,850);
+});
+
+var noGrounding = guard(function(name){
+  var pretty=name.charAt(0).toUpperCase()+name.slice(1);
+  feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— MCI COACH —</div><div class="bd">'+
+     '<div class="blk"><p><b>I don\u2019t have a grounded battlecard on '+esc(pretty)+' yet.</b> I won\u2019t improvise competitor intel from general knowledge — that\u2019s the guardrail. Add a grounded profile and I\u2019ll coach without guessing.</p></div>'+
+     '<div class="blk"><div class="lbl"><span class="num">i</span>What\u2019s structurally likely (general pattern, not intel)</div>'+
+       '<p>This usually maps to a measurement- or reach-credibility play. The buyer\u2019s reaction is the part I <i>can</i> ground once you tell me which of P1–P6 you\u2019re facing.</p></div>'+
+     '</div></div></div>'));
+  document.getElementById('cnote').textContent='No grounded file → the lab declines to invent. That guardrail is the point.';
+  scrollDown();
+});
+var unclear = guard(function(){
+  feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— MCI COACH —</div><div class="bd">'+
+     '<div class="blk"><p>Tell me a bit more — which competitor is in play, or what exactly they said? I\u2019m grounded on <b>CheckedUp</b> and <b>Health Monitor Network</b> in this demo.</p></div></div></div></div>'));
+  scrollDown();
+});
+
+/* ============================ COACHING LAB (hardened) ============================ */
+var buildPersonaList = guard(function(){
+  var list=document.getElementById('personaList'); if(!list)return; list.innerHTML='';
+  for(var p in PERSONAS){ if(!PERSONAS.hasOwnProperty(p))continue;
+    var ready=(p==='P4');
+    list.appendChild(el('<button class="pbtn'+(ready?' on':'')+'" id="pbtn-'+p+'" onclick="startRoleplay(\''+p+'\')">'+
+      '<b>'+p+'</b><span>'+PERSONAS[p].name+(ready?'':' · dossier loaded')+'</span></button>'));
+  }
+});
+
+var startRoleplay = guard(function(p){
+  if(tool!=='lab'){ setTool('lab'); } // ensure we're on the lab surface
+  clearFeed();
+  if(p!=='P4'){
+    feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— MCI COACH —</div><div class="bd">'+
+      '<div class="blk"><p><b>'+p+' · '+PERSONAS[p].name+'</b>\u2019s dossier is loaded, but the scripted roleplay wired for this demo is <b>P4 · Agency Media Buyer</b> (the CheckedUp price/speed scenario). Pick P4 to run it live.</p></div></div></div></div>'));
+    scrollDown(); return;
+  }
+  labState={turn:0};
+  // mark active persona by id (no fragile text matching)
+  var all=document.querySelectorAll('.pbtn');
+  for(var i=0;i<all.length;i++)all[i].classList.remove('on');
+  var active=document.getElementById('pbtn-P4'); if(active)active.classList.add('on');
+
+  feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— SCENARIO —</div><div class="bd">'+
+     '<div class="blk"><p>You\u2019re defending a renewal with an <b>agency media buyer (P4)</b>. They\u2019ve been pitched CheckedUp. Respond in the box below; I\u2019ll stay in character. Click <b>Coach me</b> any time to step out.</p></div></div></div></div>'));
+  buyerLine("CheckedUp came in cheaper — and they\u2019ll turn creative in two days. Why am I paying you more for a slower partner?");
+  showCoachBtn();
+});
+
+function buyerLine(t){
+  feed().appendChild(el('<div class="turn"><div class="sys buyer"><div class="hd">— IN CHARACTER · P4 —</div>'+
+    '<div class="bd"><div class="blk"><p style="font-style:italic">“'+esc(t)+'”</p></div></div></div></div>'));
+  scrollDown();
+}
+function showCoachBtn(){
+  if(document.getElementById('coachBtn'))return;
+  feed().appendChild(el('<div class="turn" id="coachWrap" style="text-align:center"><button class="resetbtn" id="coachBtn" style="border-color:var(--teal);color:var(--teal-dk);background:var(--teal-tint)" onclick="coachDebrief()">Coach me &rarr;</button></div>'));
+  scrollDown();
+}
+var labReply = guard(function(t){
+  if(!labState){ startRoleplay('P4'); return; }
+  addUser(t); labState.turn++;
+  var low=t.toLowerCase();
+  var onTrack=/priorit|match|target|audit|overlap|exam|measur|scope/.test(low);
+  var rej;
+  if(labState.turn===1){
+    rej = onTrack
+      ? "Okay — my priority list. Fine. Pull the overlap, but it had better be more than a five-point difference, or I\u2019m taking the cheaper number to my client."
+      : "That\u2019s a nice story, but my client sees the CheckedUp price too. Give me something I can put in a deck — not a philosophy.";
+  }else{
+    rej = onTrack
+      ? "Alright. If the match rate holds, I\u2019ll keep you as the anchor and run CheckedUp for the derm pilot. Show me the numbers."
+      : "Still not hearing why I pay the premium. You\u2019ve got one more shot before I split the budget.";
+  }
+  var wrap=document.getElementById('coachWrap'); if(wrap)wrap.remove();
+  setTimeout(function(){ buyerLine(rej); showCoachBtn(); },500);
+});
+var coachDebrief = guard(function(){
+  var wrap=document.getElementById('coachWrap'); if(wrap)wrap.remove();
+  feed().appendChild(el('<div class="turn"><div class="sys coach"><div class="hd">— MCI COACH · DEBRIEF · P4 —</div><div class="bd">'+
+    '<div class="blk"><div class="lbl"><span class="num">&#10003;</span>What worked</div><p>Right instinct not to chase the discount. With P4, speed is contested ground — don\u2019t defend it. The win is moving the comparison to <b>coverage against their priority list</b>, where an agency buyer actually decides.</p></div>'+
+    '<div class="blk"><div class="lbl"><span class="num">&rarr;</span>The next move</div><p>It\u2019s a question, not a concession: <i>“What was the match rate against your priority list — and is that office count independently audited?”</i> That reframes “cheaper” into cost-per-<i>on-target</i> office.</p></div>'+
+    '<div class="blk"><div class="flag warn"><span class="ic">&#9888;</span><div><b>Don\u2019t lead with</b> “we have 3D and they don\u2019t” (they do) or “we\u2019re the only MRC-accredited vendor” (CheckedUp earned waiting-room TV accreditation in June). Beat them on full-office scope and the matched list.</div></div></div>'+
+    '</div></div></div>'));
+  document.getElementById('cnote').textContent='Debrief is persona-informed — keyed to P4\u2019s priority-list logic.';
+  scrollDown();
+});
+
+/* ============================ RESET ============================ */
+function resetAll(){ document.getElementById('errbar').style.display='none'; setTool('ask'); }
+
+/* init */
+try{ buildPersonaList(); renderHome(); }catch(e){ showError(e.message); }
+</script>
+</body>
+</html>
